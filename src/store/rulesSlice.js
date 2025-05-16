@@ -10,42 +10,36 @@ export const rulesSlice = createSlice({
   name: 'rules',
   initialState,
   reducers: {
+    loadRuleSets: (state, action) => {
+      state.rulesets = action.payload.rule_sets;
+      if (state.rulesets.length > 0) {
+        state.selectedRulesetId = state.rulesets[0].id;
+      }
+    },
+    updateRuleSet: (state, action) => {
+      const { rulesetId, updates } = action.payload;
+      const rulesetIndex = state.rulesets.findIndex(rs => rs.id === rulesetId);
+      if (rulesetIndex !== -1) {
+        state.rulesets[rulesetIndex] = {
+          ...state.rulesets[rulesetIndex],
+          ...updates
+        };
+      }
+    },
+    deleteRuleSet: (state, action) => {
+      const rulesetId = action.payload;
+      state.rulesets = state.rulesets.filter(rs => rs.id !== rulesetId);
+      if (state.rulesets.length > 0) {
+        state.selectedRulesetId = state.rulesets[0].id;
+      } else {
+        state.selectedRulesetId = null;
+      }
+    },
     setSelectedRuleset: (state, action) => {
       state.selectedRulesetId = action.payload;
     },
     toggleEditMode: (state) => {
       state.isEditMode = !state.isEditMode;
-    },
-    addNewRule: (state) => {
-      const ruleset = state.rulesets.find(rs => rs.id === state.selectedRulesetId);
-      if (ruleset) {
-        ruleset.rules.push({
-          id: Date.now().toString(),
-          measurementName: '',
-          comparator: 'is',
-          comparedValue: 'Not Present',
-          findingName: '',
-          action: 'Normal',
-          unit: ''
-        });
-      }
-    },
-    updateRule: (state, action) => {
-      const { rulesetId, ruleId, updates } = action.payload;
-      const ruleset = state.rulesets.find(rs => rs.id === rulesetId);
-      if (ruleset) {
-        const rule = ruleset.rules.find(r => r.id === ruleId);
-        if (rule) {
-          Object.assign(rule, updates);
-        }
-      }
-    },
-    deleteRule: (state, action) => {
-      const { rulesetId, ruleId } = action.payload;
-      const ruleset = state.rulesets.find(rs => rs.id === rulesetId);
-      if (ruleset) {
-        ruleset.rules = ruleset.rules.filter(r => r.id !== ruleId);
-      }
     },
     addNewRuleset: (state) => {
       const newRuleset = {
@@ -60,7 +54,7 @@ export const rulesSlice = createSlice({
       const currentRuleset = state.rulesets.find(rs => rs.id === state.selectedRulesetId);
       if (currentRuleset) {
         const newRuleset = {
-          id: Date.now(),
+          id: state.rulesets.length+1,
           name: `${currentRuleset.name}_(1)`,
           rules: JSON.parse(JSON.stringify(currentRuleset.rules))
         };
@@ -68,29 +62,14 @@ export const rulesSlice = createSlice({
         state.selectedRulesetId = newRuleset.id;
       }
     },
-    deleteRuleset: (state) => {
-      state.rulesets = state.rulesets.filter(rs => rs.id !== state.selectedRulesetId);
-      if (state.rulesets.length > 0) {
-        state.selectedRulesetId = state.rulesets[0].id;
-      }
-    },
-    updateRulesetName: (state, action) => {
-      const { rulesetId, newName } = action.payload;
-      const ruleset = state.rulesets.find(rs => rs.id === rulesetId);
-      if (ruleset) {
-        ruleset.name = newName;
-      }
-    },
-    loadRules: (state, action) => {
-      state.rulesets = action.payload.rule_sets;
-      if (state.rulesets.length > 0) {
-        state.selectedRulesetId = state.rulesets[0].id;
-      }
-    }
+    
   }
 });
 
 export const {
+  loadRuleSets,
+  updateRuleSet,
+  deleteRuleSet,
   setSelectedRuleset,
   toggleEditMode,
   addNewRule,
@@ -98,9 +77,7 @@ export const {
   deleteRule,
   addNewRuleset,
   copyRuleset,
-  deleteRuleset,
-  updateRulesetName,
-  loadRules
+  updateRulesetName
 } = rulesSlice.actions;
 
 export default rulesSlice.reducer; 

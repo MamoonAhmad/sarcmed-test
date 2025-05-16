@@ -1,8 +1,12 @@
-import React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { toggleEditMode, copyRuleset, setSelectedRuleset } from '../store/rulesSlice';
-import { Pencil, Copy } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import React from "react";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  toggleEditMode,
+  copyRuleset,
+  setSelectedRuleset,
+} from "../store/rulesSlice";
+import { Pencil, Copy } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -17,12 +21,12 @@ import {
   TableHead,
   TableRow,
   TableCell,
-} from '@/components/ui/table';
+} from "@/components/ui/table";
 
 const RulesViewMode = () => {
   const dispatch = useDispatch();
   const { rulesets, selectedRulesetId } = useSelector((state) => state.rules);
-  const selectedRuleset = rulesets.find(rs => rs.id === selectedRulesetId);
+  const selectedRuleset = rulesets.find((rs) => rs.id === selectedRulesetId);
 
   const handleEditMode = () => {
     dispatch(toggleEditMode());
@@ -36,15 +40,29 @@ const RulesViewMode = () => {
     dispatch(setSelectedRuleset(parseInt(value)));
   };
 
+  const getDisplayComparator = (comparator) => {
+    return comparator === "not present" ? "is" : comparator;
+  };
+
+  const getDisplayComparedValue = (comparator, comparedValue, unitName) => {
+    if (comparator === "not present") {
+      return "Not Present";
+    }
+    return unitName ? `${comparedValue} ${unitName}` : comparedValue;
+  };
+
   return (
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-4">
-        <Select value={selectedRulesetId?.toString()} onValueChange={handleRulesetChange}>
+        <Select
+          value={selectedRulesetId?.toString()}
+          onValueChange={handleRulesetChange}
+        >
           <SelectTrigger className="w-[280px]">
             <SelectValue placeholder="Select a ruleset" />
           </SelectTrigger>
           <SelectContent>
-            {rulesets.map(ruleset => (
+            {rulesets.map((ruleset) => (
               <SelectItem key={ruleset.id} value={ruleset.id.toString()}>
                 {ruleset.name}
               </SelectItem>
@@ -67,10 +85,8 @@ const RulesViewMode = () => {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Measurement Name</TableHead>
-            <TableHead>Comparator</TableHead>
-            <TableHead>Compared Value</TableHead>
-            <TableHead>Unit</TableHead>
+            <TableHead className="w-[50px]">#</TableHead>
+            <TableHead colSpan={3} className={"text-center"}>Measurement Conditions</TableHead>
             <TableHead>Finding Name</TableHead>
             <TableHead>Action</TableHead>
           </TableRow>
@@ -78,10 +94,16 @@ const RulesViewMode = () => {
         <TableBody>
           {selectedRuleset?.rules.map((rule) => (
             <TableRow key={rule.id}>
-              <TableCell>{rule.measurement}</TableCell>
-              <TableCell>{rule.comparator}</TableCell>
-              <TableCell>{rule.comparedValue}</TableCell>
-              <TableCell>{rule.unitName}</TableCell>
+              <TableCell>{rule.id}</TableCell>
+              <TableCell className={"text-center"}>{rule.measurement}</TableCell>
+              <TableCell>{getDisplayComparator(rule.comparator)}</TableCell>
+              <TableCell>
+                {getDisplayComparedValue(
+                  rule.comparator,
+                  rule.comparedValue,
+                  rule.unitName
+                )}
+              </TableCell>
               <TableCell>{rule.findingName}</TableCell>
               <TableCell>{rule.action}</TableCell>
             </TableRow>
@@ -92,4 +114,4 @@ const RulesViewMode = () => {
   );
 };
 
-export default RulesViewMode; 
+export default RulesViewMode;

@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { loadRules } from '../store/rulesSlice';
-import RulesViewMode from './RulesViewMode';
-import RulesEditMode from './RulesEditMode';
+import { loadRuleSets } from '../store/rulesSlice';
+import RulesViewMode from './RulesetViewMode';
+import RulesEditMode from './RulesetEditMode';
 import mockData from '../data/mockRules.json';
 
 const Rules = () => {
@@ -10,7 +10,7 @@ const Rules = () => {
   const { isEditMode } = useSelector((state) => state.rules);
 
   useEffect(() => {
-    dispatch(loadRules(mockData));
+    dispatch(loadRuleSets(mockData));
   }, [dispatch]);
 
   return isEditMode ? <RulesEditMode /> : <RulesViewMode />;
