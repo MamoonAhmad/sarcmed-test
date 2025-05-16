@@ -54,7 +54,7 @@ export const rulesSlice = createSlice({
       const currentRuleset = state.rulesets.find(rs => rs.id === state.selectedRulesetId);
       if (currentRuleset) {
         const newRuleset = {
-          id: state.rulesets.length+1,
+          id: Date.now(),
           name: `${currentRuleset.name}_(1)`,
           rules: JSON.parse(JSON.stringify(currentRuleset.rules))
         };
