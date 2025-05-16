@@ -72,6 +72,7 @@ const RulesetEditMode = () => {
 
   const handleConfirmDelete = () => {
     dispatch(deleteRuleSet(selectedRulesetId));
+    dispatch(toggleEditMode());
     setShowDeleteDialog(false);
   };
 
