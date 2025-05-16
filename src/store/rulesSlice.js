@@ -1,24 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  rulesets: [
-    {
-      id: '1',
-      name: 'Default Ruleset',
-      rules: [
-        {
-          id: '1',
-          measurementName: 'Example Measurement',
-          comparator: 'is',
-          comparedValue: 'Not Present',
-          findingName: 'Example Finding',
-          action: 'Normal',
-          unit: ''
-        }
-      ]
-    }
-  ],
-  selectedRulesetId: '1',
+  rulesets: [],
+  selectedRulesetId: null,
   isEditMode: false
 };
 
@@ -76,7 +60,7 @@ export const rulesSlice = createSlice({
       const currentRuleset = state.rulesets.find(rs => rs.id === state.selectedRulesetId);
       if (currentRuleset) {
         const newRuleset = {
-          id: Date.now().toString(),
+          id: Date.now(),
           name: `${currentRuleset.name}_(1)`,
           rules: JSON.parse(JSON.stringify(currentRuleset.rules))
         };
@@ -96,6 +80,12 @@ export const rulesSlice = createSlice({
       if (ruleset) {
         ruleset.name = newName;
       }
+    },
+    loadRules: (state, action) => {
+      state.rulesets = action.payload.rule_sets;
+      if (state.rulesets.length > 0) {
+        state.selectedRulesetId = state.rulesets[0].id;
+      }
     }
   }
 });
@@ -109,7 +99,8 @@ export const {
   addNewRuleset,
   copyRuleset,
   deleteRuleset,
-  updateRulesetName
+  updateRulesetName,
+  loadRules
 } = rulesSlice.actions;
 
 export default rulesSlice.reducer; 
