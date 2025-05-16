@@ -43,8 +43,8 @@ export const rulesSlice = createSlice({
     },
     addNewRuleset: (state) => {
       const newRuleset = {
-        id: Date.now().toString(),
-        name: 'New Ruleset',
+        id: Date.now(),
+        name: `Rule Set ${state.rulesets.length + 1}`,
         rules: []
       };
       state.rulesets.push(newRuleset);

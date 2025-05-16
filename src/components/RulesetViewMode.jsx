@@ -4,8 +4,9 @@ import {
   toggleEditMode,
   copyRuleset,
   setSelectedRuleset,
+  addNewRuleset,
 } from "../store/rulesSlice";
-import { Pencil, Copy } from "lucide-react";
+import { Pencil, Copy, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -13,6 +14,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  SelectSeparator,
 } from "@/components/ui/select";
 import {
   Table,
@@ -37,7 +39,11 @@ const RulesViewMode = () => {
   };
 
   const handleRulesetChange = (value) => {
-    dispatch(setSelectedRuleset(parseInt(value)));
+    if (value === "new") {
+      dispatch(addNewRuleset());
+    } else {
+      dispatch(setSelectedRuleset(parseInt(value)));
+    }
   };
 
   const getDisplayComparator = (comparator) => {
@@ -67,6 +73,11 @@ const RulesViewMode = () => {
                 {ruleset.name}
               </SelectItem>
             ))}
+            <SelectSeparator />
+            <SelectItem value="new" className="text-primary">
+              <Plus className="w-4 h-4" />
+              New Ruleset
+            </SelectItem>
           </SelectContent>
         </Select>
 
@@ -92,22 +103,30 @@ const RulesViewMode = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {selectedRuleset?.rules.map((rule) => (
-            <TableRow key={rule.id}>
-              <TableCell>{rule.id}</TableCell>
-              <TableCell className={"text-center"}>{rule.measurement}</TableCell>
-              <TableCell>{getDisplayComparator(rule.comparator)}</TableCell>
-              <TableCell>
-                {getDisplayComparedValue(
-                  rule.comparator,
-                  rule.comparedValue,
-                  rule.unitName
-                )}
+          {selectedRuleset?.rules.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                No Rules Found For This Ruleset
               </TableCell>
-              <TableCell>{rule.findingName}</TableCell>
-              <TableCell>{rule.action}</TableCell>
             </TableRow>
-          ))}
+          ) : (
+            selectedRuleset?.rules.map((rule) => (
+              <TableRow key={rule.id}>
+                <TableCell>{rule.id}</TableCell>
+                <TableCell className={"text-center"}>{rule.measurement}</TableCell>
+                <TableCell>{getDisplayComparator(rule.comparator)}</TableCell>
+                <TableCell>
+                  {getDisplayComparedValue(
+                    rule.comparator,
+                    rule.comparedValue,
+                    rule.unitName
+                  )}
+                </TableCell>
+                <TableCell>{rule.findingName}</TableCell>
+                <TableCell>{rule.action}</TableCell>
+              </TableRow>
+            ))
+          )}
         </TableBody>
       </Table>
     </div>

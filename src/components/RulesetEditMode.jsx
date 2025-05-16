@@ -201,142 +201,150 @@ const RulesetEditMode = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {localRuleset.rules.map((rule) => (
-            <TableRow key={rule.id}>
-              <TableCell>{rule.id}</TableCell>
-              <TableCell className={"text-center"}>
-                {editingRuleId === rule.id ? (
-                  <Input
-                    type="text"
-                    value={rule.measurement}
-                    onChange={(e) =>
-                      handleRuleUpdate(rule.id, { measurement: e.target.value })
-                    }
-                  />
-                ) : (
-                  rule.measurement
-                )}
-              </TableCell>
-              <TableCell>
-                {editingRuleId === rule.id ? (
-                  <Select
-                    value={getDisplayComparator(rule.comparator)}
-                    onValueChange={(value) => handleComparatorChange(rule.id, value)}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select comparator" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="is">is</SelectItem>
-                      <SelectItem value=">=">{">="}</SelectItem>
-                      <SelectItem value="<">{"<"}</SelectItem>
-                    </SelectContent>
-                  </Select>
-                ) : (
-                  getDisplayComparator(rule.comparator)
-                )}
-              </TableCell>
-              <TableCell>
-                {editingRuleId === rule.id ? (
-                  rule.comparator === "not present" ? (
-                    <Input
-                      type="text"
-                      value="Not Present"
-                      disabled
-                      className="bg-muted w-full"
-                    />
-                  ) : (
-                    <div className="flex gap-2">
-                      <Input
-                        type="number"
-                        value={rule.comparedValue}
-                        onChange={(e) =>
-                          handleRuleUpdate(rule.id, {
-                            comparedValue: parseInt(e.target.value),
-                          })
-                        }
-                        className="w-[100px]"
-                      />
-                      <Input
-                        type="text"
-                        value={rule.unitName}
-                        onChange={(e) =>
-                          handleRuleUpdate(rule.id, {
-                            unitName: e.target.value,
-                          })
-                        }
-                        placeholder="Unit"
-                        className="w-[80px]"
-                      />
-                    </div>
-                  )
-                ) : rule.comparator === "not present" ? (
-                  "Not Present"
-                ) : (
-                  `${rule.comparedValue} ${rule.unitName}`
-                )}
-              </TableCell>
-              <TableCell>
-                {editingRuleId === rule.id ? (
-                  <Input
-                    type="text"
-                    value={rule.findingName}
-                    onChange={(e) =>
-                      handleRuleUpdate(rule.id, { findingName: e.target.value })
-                    }
-                  />
-                ) : (
-                  rule.findingName
-                )}
-              </TableCell>
-              <TableCell>
-                {editingRuleId === rule.id ? (
-                  <Select
-                    value={rule.action}
-                    onValueChange={(value) => handleRuleUpdate(rule.id, { action: value })}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select action" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Normal">Normal</SelectItem>
-                      <SelectItem value="Reflux">Reflux</SelectItem>
-                    </SelectContent>
-                  </Select>
-                ) : (
-                  rule.action
-                )}
-              </TableCell>
-              <TableCell>
-                <div className="flex space-x-2">
-                  {editingRuleId === rule.id ? (
-                    <Button
-                      onClick={handleSaveRule}
-                      variant="ghost"
-                      size="icon"
-                    >
-                      <Check className="w-4 h-4" />
-                    </Button>
-                  ) : (
-                    <Button
-                      onClick={() => handleEditRule(rule.id)}
-                      variant="ghost"
-                      size="icon"
-                    >
-                      <Pencil className="w-4 h-4" />
-                    </Button>
-                  )}
-                  <Button
-                    onClick={() => handleRuleDelete(rule.id)}
-                    variant="ghost"
-                    size="icon"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
+          {localRuleset.rules.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                No Rules Found For This Ruleset
               </TableCell>
             </TableRow>
-          ))}
+          ) : (
+            localRuleset.rules.map((rule) => (
+              <TableRow key={rule.id}>
+                <TableCell>{rule.id}</TableCell>
+                <TableCell className={"text-center"}>
+                  {editingRuleId === rule.id ? (
+                    <Input
+                      type="text"
+                      value={rule.measurement}
+                      onChange={(e) =>
+                        handleRuleUpdate(rule.id, { measurement: e.target.value })
+                      }
+                    />
+                  ) : (
+                    rule.measurement
+                  )}
+                </TableCell>
+                <TableCell>
+                  {editingRuleId === rule.id ? (
+                    <Select
+                      value={getDisplayComparator(rule.comparator)}
+                      onValueChange={(value) => handleComparatorChange(rule.id, value)}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select comparator" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="is">is</SelectItem>
+                        <SelectItem value=">=">{">="}</SelectItem>
+                        <SelectItem value="<">{"<"}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    getDisplayComparator(rule.comparator)
+                  )}
+                </TableCell>
+                <TableCell>
+                  {editingRuleId === rule.id ? (
+                    rule.comparator === "not present" ? (
+                      <Input
+                        type="text"
+                        value="Not Present"
+                        disabled
+                        className="bg-muted w-full"
+                      />
+                    ) : (
+                      <div className="flex gap-2">
+                        <Input
+                          type="number"
+                          value={rule.comparedValue}
+                          onChange={(e) =>
+                            handleRuleUpdate(rule.id, {
+                              comparedValue: parseInt(e.target.value),
+                            })
+                          }
+                          className="w-[100px]"
+                        />
+                        <Input
+                          type="text"
+                          value={rule.unitName}
+                          onChange={(e) =>
+                            handleRuleUpdate(rule.id, {
+                              unitName: e.target.value,
+                            })
+                          }
+                          placeholder="Unit"
+                          className="w-[80px]"
+                        />
+                      </div>
+                    )
+                  ) : rule.comparator === "not present" ? (
+                    "Not Present"
+                  ) : (
+                    `${rule.comparedValue} ${rule.unitName}`
+                  )}
+                </TableCell>
+                <TableCell>
+                  {editingRuleId === rule.id ? (
+                    <Input
+                      type="text"
+                      value={rule.findingName}
+                      onChange={(e) =>
+                        handleRuleUpdate(rule.id, { findingName: e.target.value })
+                      }
+                    />
+                  ) : (
+                    rule.findingName
+                  )}
+                </TableCell>
+                <TableCell>
+                  {editingRuleId === rule.id ? (
+                    <Select
+                      value={rule.action}
+                      onValueChange={(value) => handleRuleUpdate(rule.id, { action: value })}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select action" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Normal">Normal</SelectItem>
+                        <SelectItem value="Reflux">Reflux</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    rule.action
+                  )}
+                </TableCell>
+                <TableCell>
+                  <div className="flex space-x-2">
+                    {editingRuleId === rule.id ? (
+                      <Button
+                        onClick={handleSaveRule}
+                        variant="ghost"
+                        size="icon"
+                      >
+                        <Check className="w-4 h-4" />
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={() => handleEditRule(rule.id)}
+                        variant="ghost"
+                        size="icon"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </Button>
+                    )}
+                    <Button
+                      onClick={() => handleRuleDelete(rule.id)}
+                      variant="ghost"
+                      size="icon"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
         </TableBody>
       </Table>
 
