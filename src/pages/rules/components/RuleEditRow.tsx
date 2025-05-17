@@ -27,13 +27,39 @@ interface RuleEditRowProps {
  * Component for editing individual rules within a ruleset
  * Handles validation and updates for rule fields
  */
-const RuleEditRow: React.FC<RuleEditRowProps> = ({ rule, onUpdate, onSave, onDelete, index }) => {
+const RuleEditRow: React.FC<RuleEditRowProps> = ({
+  rule: ruleProp,
+  onSave: onSaveProp,
+  onUpdate: onUpdateProp,
+  onDelete: onDeleteProp,
+  index,
+}) => {
   const [errors, setErrors] = useState({
     measurement: "",
     findingName: "",
     comparedValue: "",
     unitName: "",
   });
+
+  const [rule, setRule] = useState<Rule>({ ...ruleProp });
+
+  const onUpdate = (updates: Partial<Rule>) => {
+    setRule({ ...rule, ...updates });
+  };
+
+  const onSave = () => {
+    onUpdateProp(rule.id, rule);
+    onSaveProp();
+  }
+
+  const onDelete = () => {
+    // this means that this was an existing valid rule that was getting updated
+    if(ruleProp.findingName && ruleProp.measurement) {
+      onSaveProp();
+    } else {
+      onDeleteProp(rule.id);
+    }
+  }
 
   // Validate rule fields and set error messages
   const validateRule = (): boolean => {
@@ -86,10 +112,10 @@ const RuleEditRow: React.FC<RuleEditRowProps> = ({ rule, onUpdate, onSave, onDel
       updates.comparedValue = -1;
       updates.unitName = "";
     } else {
-      updates.comparator = value as Rule['comparator'];
+      updates.comparator = value as Rule["comparator"];
       updates.comparedValue = 0;
     }
-    onUpdate(rule.id, updates);
+    onUpdate(updates);
   };
 
   // Convert internal comparator value to display format
@@ -105,7 +131,7 @@ const RuleEditRow: React.FC<RuleEditRowProps> = ({ rule, onUpdate, onSave, onDel
           <Input
             type="text"
             value={rule.measurement}
-            onChange={(e) => onUpdate(rule.id, { measurement: e.target.value })}
+            onChange={(e) => onUpdate({ measurement: e.target.value })}
             className={errors.measurement ? "border-red-500" : ""}
           />
           {errors.measurement && (
@@ -143,7 +169,7 @@ const RuleEditRow: React.FC<RuleEditRowProps> = ({ rule, onUpdate, onSave, onDel
                 type="number"
                 value={rule.comparedValue}
                 onChange={(e) =>
-                  onUpdate(rule.id, {
+                  onUpdate({
                     comparedValue: parseInt(e.target.value),
                   })
                 }
@@ -155,7 +181,7 @@ const RuleEditRow: React.FC<RuleEditRowProps> = ({ rule, onUpdate, onSave, onDel
                 type="text"
                 value={rule.unitName}
                 onChange={(e) =>
-                  onUpdate(rule.id, {
+                  onUpdate({
                     unitName: e.target.value,
                   })
                 }
@@ -187,7 +213,7 @@ const RuleEditRow: React.FC<RuleEditRowProps> = ({ rule, onUpdate, onSave, onDel
           <Input
             type="text"
             value={rule.findingName}
-            onChange={(e) => onUpdate(rule.id, { findingName: e.target.value })}
+            onChange={(e) => onUpdate({ findingName: e.target.value })}
             className={errors.findingName ? "border-red-500" : ""}
           />
           {errors.findingName && (
@@ -198,7 +224,9 @@ const RuleEditRow: React.FC<RuleEditRowProps> = ({ rule, onUpdate, onSave, onDel
       <TableCell>
         <Select
           value={rule.action}
-          onValueChange={(value) => onUpdate(rule.id, { action: value as Rule['action'] })}
+          onValueChange={(value) =>
+            onUpdate({ action: value as Rule["action"] })
+          }
         >
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select action" />
@@ -214,7 +242,7 @@ const RuleEditRow: React.FC<RuleEditRowProps> = ({ rule, onUpdate, onSave, onDel
           <Button onClick={handleSave} variant="ghost" size="icon">
             <Check className="w-4 h-4" />
           </Button>
-          <Button onClick={() => onDelete(rule.id)} variant="ghost" size="icon">
+          <Button onClick={() => onDelete()} variant="ghost" size="icon">
             <X className="w-4 h-4" />
           </Button>
         </div>
@@ -223,4 +251,4 @@ const RuleEditRow: React.FC<RuleEditRowProps> = ({ rule, onUpdate, onSave, onDel
   );
 };
 
-export default RuleEditRow; 
+export default RuleEditRow;
