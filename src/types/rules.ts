@@ -16,8 +16,6 @@ export interface Ruleset {
 
 export interface RulesState {
   rulesets: Ruleset[];
-  selectedRulesetId: number | null;
-  isEditMode: boolean;
 }
 
 export interface RootState {

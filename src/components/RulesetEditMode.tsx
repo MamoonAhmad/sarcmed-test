@@ -1,11 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import {
-  toggleEditMode,
-  updateRuleSet,
-  deleteRuleSet,
-} from "../store/rulesSlice";
-import { Plus, X, Trash2, Pencil, Check } from "lucide-react";
+import React, { useState } from "react";
+import { X, Trash2, Pencil, Check, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -38,7 +32,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Separator } from "@/components/ui/separator";
-import { RootState, Rule, Ruleset } from "../types/rules";
+import { Rule, Ruleset } from "../types/rules";
 
 interface RuleEditRowProps {
   rule: Rule;
@@ -240,98 +234,46 @@ const RuleEditRow: React.FC<RuleEditRowProps> = ({ rule, onUpdate, onSave, onDel
   );
 };
 
-const RulesetEditMode: React.FC = () => {
-  const dispatch = useDispatch();
-  const { rulesets, selectedRulesetId } = useSelector((state: RootState) => state.rules);
-  const [localRuleset, setLocalRuleset] = useState<Ruleset | null>(null);
+interface RulesetEditModeProps {
+  ruleset: Ruleset;
+  onSave: (ruleset: Ruleset) => void;
+  onCancel: () => void;
+  onDelete: () => void;
+}
+
+const RulesetEditMode: React.FC<RulesetEditModeProps> = ({ ruleset, onSave, onCancel, onDelete }) => {
+  const [localRuleset, setLocalRuleset] = useState<Ruleset>(ruleset);
   const [editingRuleIds, setEditingRuleIds] = useState<Set<number>>(new Set());
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
 
-  useEffect(() => {
-    const selectedRuleset = rulesets.find((rs) => rs.id === selectedRulesetId);
-    if (selectedRuleset) {
-      setLocalRuleset(JSON.parse(JSON.stringify(selectedRuleset)));
-      setEditingRuleIds(new Set());
-    } else {
-      setLocalRuleset(null);
-      setEditingRuleIds(new Set());
-    }
-  }, [rulesets, selectedRulesetId]);
-
-  const handleAddNewRule = () => {
-    if (localRuleset) {
-      const newRule: Rule = {
-        id: Date.now(),
-        measurement: "",
-        comparator: "not present",
-        comparedValue: -1,
-        findingName: "",
-        action: "Normal",
-        unitName: "",
-      };
-      setLocalRuleset({
-        ...localRuleset,
-        rules: [...localRuleset.rules, newRule],
-      });
-      setEditingRuleIds((prev) => new Set([...prev, newRule.id]));
-    }
-  };
-
-  const handleDeleteRuleset = () => {
-    setShowDeleteDialog(true);
-  };
-
-  const handleConfirmDelete = () => {
-    if (selectedRulesetId) {
-      dispatch(deleteRuleSet(selectedRulesetId));
-      dispatch(toggleEditMode());
-      setShowDeleteDialog(false);
-    }
-  };
-
-  const handleCancel = () => {
-    setShowCancelDialog(true);
-  };
-
-  const handleConfirmCancel = () => {
-    dispatch(toggleEditMode());
-    setShowCancelDialog(false);
+  const handleRulesetNameChange = (name: string) => {
+    setLocalRuleset((prev) => ({
+      ...prev,
+      name,
+    }));
   };
 
   const handleRuleUpdate = (ruleId: number, updates: Partial<Rule>) => {
-    if (localRuleset) {
-      setLocalRuleset({
-        ...localRuleset,
-        rules: localRuleset.rules.map((rule) =>
-          rule.id === ruleId ? { ...rule, ...updates } : rule
-        ),
-      });
-    }
+    setLocalRuleset((prev) => ({
+      ...prev,
+      rules: prev.rules.map((rule) =>
+        rule.id === ruleId ? { ...rule, ...updates } : rule
+      ),
+    }));
   };
 
   const handleRuleDelete = (ruleId: number) => {
-    if (localRuleset) {
-      setLocalRuleset({
-        ...localRuleset,
-        rules: localRuleset.rules.filter((rule) => rule.id !== ruleId),
-      });
-      setEditingRuleIds((prev) => {
-        const newSet = new Set(prev);
-        newSet.delete(ruleId);
-        return newSet;
-      });
-    }
-  };
-
-  const handleRulesetNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (localRuleset) {
-      setLocalRuleset({
-        ...localRuleset,
-        name: e.target.value,
-      });
-    }
+    setLocalRuleset((prev) => ({
+      ...prev,
+      rules: prev.rules.filter((rule) => rule.id !== ruleId),
+    }));
+    setEditingRuleIds((prev) => {
+      const newSet = new Set(prev);
+      newSet.delete(ruleId);
+      return newSet;
+    });
   };
 
   const handleEditRule = (ruleId: number) => {
@@ -344,30 +286,43 @@ const RulesetEditMode: React.FC = () => {
       newSet.delete(ruleId);
       return newSet;
     });
+    setEditingRuleIds((prev) => {
+      const newSet = new Set(prev);
+      newSet.delete(ruleId);
+      return newSet;
+    });
   };
 
-  const handleSaveAllChanges = () => {
+  const handleAddNewRule = () => {
+    const newRule: Rule = {
+      id: Date.now(),
+      measurement: "",
+      comparator: "not present",
+      comparedValue: -1,
+      findingName: "",
+      action: "Normal",
+      unitName: "",
+    };
+    setLocalRuleset((prev) => ({
+      ...prev,
+      rules: [...prev.rules, newRule],
+    }));
+    setEditingRuleIds((prev) => new Set([...prev, newRule.id]));
+  };
+
+  const handleSaveClick = () => {
     setShowSaveDialog(true);
   };
 
-  const handleConfirmSave = () => {
-    if (localRuleset && selectedRulesetId) {
-      dispatch(
-        updateRuleSet({
-          rulesetId: selectedRulesetId,
-          updates: localRuleset,
-        })
-      );
-    }
-    dispatch(toggleEditMode());
-    setShowSaveDialog(false);
+  const handleDeleteClick = () => {
+    setShowDeleteDialog(true);
+  };
+
+  const handleCancelClick = () => {
+    setShowCancelDialog(true);
   };
 
   const hasRulesInEditMode = editingRuleIds.size > 0;
-  
-  if (!localRuleset) {
-    return null;
-  }
 
   return (
     <div className="container mx-auto p-4">
@@ -376,7 +331,7 @@ const RulesetEditMode: React.FC = () => {
           <Input
             type="text"
             value={localRuleset.name}
-            onChange={handleRulesetNameChange}
+            onChange={(e) => handleRulesetNameChange(e.target.value)}
             className="w-[280px]"
             placeholder="Ruleset Name"
           />
@@ -387,7 +342,7 @@ const RulesetEditMode: React.FC = () => {
               <TooltipTrigger asChild>
                 <span>
                   <Button
-                    onClick={handleSaveAllChanges}
+                    onClick={handleSaveClick}
                     variant="default"
                     disabled={hasRulesInEditMode}
                   >
@@ -402,7 +357,7 @@ const RulesetEditMode: React.FC = () => {
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
-          <Button onClick={handleCancel} variant="outline">
+          <Button onClick={handleCancelClick} variant="outline">
             <X className="w-4 h-4" />
             Cancel
           </Button>
@@ -414,7 +369,7 @@ const RulesetEditMode: React.FC = () => {
             Add New Rule
           </Button>
 
-          <Button onClick={handleDeleteRuleset} variant="destructive">
+          <Button onClick={handleDeleteClick} variant="destructive">
             <Trash2 className="w-4 h-4" />
             Delete Ruleset
           </Button>
@@ -507,7 +462,10 @@ const RulesetEditMode: React.FC = () => {
             <Button variant="outline" onClick={() => setShowSaveDialog(false)}>
               Cancel
             </Button>
-            <Button onClick={handleConfirmSave}>Save Changes</Button>
+            <Button onClick={() => {
+              setShowSaveDialog(false);
+              onSave(localRuleset);
+            }}>Save Changes</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -528,7 +486,10 @@ const RulesetEditMode: React.FC = () => {
             >
               Cancel
             </Button>
-            <Button variant="destructive" onClick={handleConfirmDelete}>
+            <Button variant="destructive" onClick={() => {
+              setShowDeleteDialog(false);
+              onDelete();
+            }}>
               Delete
             </Button>
           </DialogFooter>
@@ -550,7 +511,10 @@ const RulesetEditMode: React.FC = () => {
             >
               Continue Editing
             </Button>
-            <Button variant="destructive" onClick={handleConfirmCancel}>
+            <Button variant="destructive" onClick={() => {
+              setShowCancelDialog(false);
+              onCancel();
+            }}>
               Discard Changes
             </Button>
           </DialogFooter>

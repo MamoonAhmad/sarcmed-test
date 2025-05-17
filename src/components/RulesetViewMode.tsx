@@ -1,12 +1,5 @@
 import React from "react";
-import { useSelector, useDispatch } from "react-redux";
-import {
-  toggleEditMode,
-  copyRuleset,
-  setSelectedRuleset,
-  addNewRuleset,
-} from "../store/rulesSlice";
-import { Pencil, Copy, Plus } from "lucide-react";
+import { Pencil, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -24,28 +17,26 @@ import {
   TableRow,
   TableCell,
 } from "@/components/ui/table";
-import { RootState } from "../types/rules";
+import { Ruleset } from "../types/rules";
 
-const RulesViewMode: React.FC = () => {
-  const dispatch = useDispatch();
-  const { rulesets, selectedRulesetId } = useSelector((state: RootState) => state.rules);
+interface RulesetViewModeProps {
+  rulesets: Ruleset[];
+  selectedRulesetId: number | null;
+  onSelectedRulesetChange: (value: string) => void;
+  onEditMode: () => void;
+  onCopyRuleset: () => void;
+  onAddNewRuleset: () => void
+}
+
+const RulesetViewMode: React.FC<RulesetViewModeProps> = ({
+  rulesets,
+  selectedRulesetId,
+  onSelectedRulesetChange,
+  onEditMode,
+  onCopyRuleset,
+  onAddNewRuleset
+}) => {
   const selectedRuleset = rulesets.find((rs) => rs.id === selectedRulesetId);
-
-  const handleEditMode = () => {
-    dispatch(toggleEditMode());
-  };
-
-  const handleCopyRuleset = () => {
-    dispatch(copyRuleset());
-  };
-
-  const handleRulesetChange = (value: string) => {
-    if (value === "new") {
-      dispatch(addNewRuleset());
-    } else {
-      dispatch(setSelectedRuleset(parseInt(value)));
-    }
-  };
 
   const getDisplayComparator = (comparator: string): string => {
     return comparator === "not present" ? "is" : comparator;
@@ -62,12 +53,20 @@ const RulesViewMode: React.FC = () => {
     return unitName ? `${comparedValue} ${unitName}` : comparedValue.toString();
   };
 
+  const onChange = (value: string) => {
+    if(value === "new") {
+      onAddNewRuleset();
+    } else {
+      onSelectedRulesetChange(value);
+    }
+  }
+
   return (
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-4">
         <Select
           value={selectedRulesetId?.toString()}
-          onValueChange={handleRulesetChange}
+          onValueChange={onChange}
         >
           <SelectTrigger className="w-[280px]">
             <SelectValue placeholder="Select a ruleset" />
@@ -80,7 +79,6 @@ const RulesViewMode: React.FC = () => {
             ))}
             <SelectSeparator />
             <SelectItem value="new" className="text-primary">
-              <Plus className="w-4 h-4" />
               New Ruleset
             </SelectItem>
           </SelectContent>
@@ -88,11 +86,11 @@ const RulesViewMode: React.FC = () => {
 
         {selectedRuleset ? (
           <div className="space-x-2">
-            <Button onClick={handleEditMode} variant="default">
+            <Button onClick={onEditMode} variant="default">
               <Pencil className="w-4 h-4" />
               Edit Rules
             </Button>
-            <Button onClick={handleCopyRuleset} variant="secondary">
+            <Button onClick={onCopyRuleset} variant="secondary">
               <Copy className="w-4 h-4" />
               Copy Ruleset
             </Button>
@@ -157,4 +155,4 @@ const RulesViewMode: React.FC = () => {
   );
 };
 
-export default RulesViewMode;
+export default RulesetViewMode;
