@@ -157,7 +157,7 @@ const RulesetViewMode: React.FC<RulesetViewModeProps> = ({
                     )}
                   </TableCell>
                   <TableCell>{rule.findingName}</TableCell>
-                  <TableCell>{rule.action}</TableCell>
+                  <TableCell className="font-semibold">Select "{rule.action}"</TableCell>
                 </TableRow>
               ))
             )}

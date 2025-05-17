@@ -74,7 +74,7 @@ const SortableRuleRow: React.FC<SortableRuleRowProps> = ({
               : `${rule.comparedValue} ${rule.unitName}`}
           </TableCell>
           <TableCell>{rule.findingName}</TableCell>
-          <TableCell>{rule.action}</TableCell>
+          <TableCell className="font-semibold">Select "{rule.action}"</TableCell>
           <TableCell>
             <div className="flex space-x-2">
               <Button onClick={() => onEdit(rule.id)} variant="ghost" size="icon">
