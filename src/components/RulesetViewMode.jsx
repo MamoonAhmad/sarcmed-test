@@ -81,54 +81,73 @@ const RulesViewMode = () => {
           </SelectContent>
         </Select>
 
-        <div className="space-x-2">
-          <Button onClick={handleEditMode} variant="default">
-            <Pencil className="w-4 h-4" />
-            Edit Rules
-          </Button>
-          <Button onClick={handleCopyRuleset} variant="secondary">
-            <Copy className="w-4 h-4" />
-            Copy Ruleset
-          </Button>
-        </div>
+        {selectedRuleset ? (
+          <div className="space-x-2">
+            <Button onClick={handleEditMode} variant="default">
+              <Pencil className="w-4 h-4" />
+              Edit Rules
+            </Button>
+            <Button onClick={handleCopyRuleset} variant="secondary">
+              <Copy className="w-4 h-4" />
+              Copy Ruleset
+            </Button>
+          </div>
+        ) : null}
       </div>
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[50px]">#</TableHead>
-            <TableHead colSpan={3} className={"text-center"}>Measurement Conditions</TableHead>
-            <TableHead>Finding Name</TableHead>
-            <TableHead>Action</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {selectedRuleset?.rules.length === 0 ? (
+      {!selectedRuleset ? (
+        <div className="flex flex-col items-center justify-center h-[400px] text-center">
+          <h3 className="text-lg font-semibold mb-2">No Ruleset Selected</h3>
+          <p className="text-muted-foreground">
+            Select a ruleset from the dropdown or create a new one to view its
+            rules.
+          </p>
+        </div>
+      ) : (
+        <Table>
+          <TableHeader>
             <TableRow>
-              <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
-                No Rules Found For This Ruleset
-              </TableCell>
+              <TableHead className="w-[50px]">#</TableHead>
+              <TableHead colSpan={3} className={"text-center"}>
+                Measurement Conditions
+              </TableHead>
+              <TableHead>Finding Name</TableHead>
+              <TableHead>Action</TableHead>
             </TableRow>
-          ) : (
-            selectedRuleset?.rules.map((rule, i) => (
-              <TableRow key={rule.id}>
-                <TableCell>{i+1}</TableCell>
-                <TableCell className={"text-center"}>{rule.measurement}</TableCell>
-                <TableCell>{getDisplayComparator(rule.comparator)}</TableCell>
-                <TableCell>
-                  {getDisplayComparedValue(
-                    rule.comparator,
-                    rule.comparedValue,
-                    rule.unitName
-                  )}
+          </TableHeader>
+          <TableBody>
+            {selectedRuleset?.rules.length === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={6}
+                  className="text-center text-muted-foreground py-8"
+                >
+                  No Rules Found For This Ruleset
                 </TableCell>
-                <TableCell>{rule.findingName}</TableCell>
-                <TableCell>{rule.action}</TableCell>
               </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
+            ) : (
+              selectedRuleset?.rules.map((rule, i) => (
+                <TableRow key={rule.id}>
+                  <TableCell>{i + 1}</TableCell>
+                  <TableCell className={"text-center"}>
+                    {rule.measurement}
+                  </TableCell>
+                  <TableCell>{getDisplayComparator(rule.comparator)}</TableCell>
+                  <TableCell>
+                    {getDisplayComparedValue(
+                      rule.comparator,
+                      rule.comparedValue,
+                      rule.unitName
+                    )}
+                  </TableCell>
+                  <TableCell>{rule.findingName}</TableCell>
+                  <TableCell>{rule.action}</TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      )}
     </div>
   );
 };

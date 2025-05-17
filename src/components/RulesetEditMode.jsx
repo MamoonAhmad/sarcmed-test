@@ -353,6 +353,10 @@ const RulesetEditMode = () => {
   };
 
   const hasRulesInEditMode = editingRuleIds.size > 0;
+  
+  if (!localRuleset) {
+    return null;
+  }
 
   return (
     <div className="container mx-auto p-4">
@@ -371,8 +375,8 @@ const RulesetEditMode = () => {
             <Tooltip>
               <TooltipTrigger asChild>
                 <span>
-                  <Button 
-                    onClick={handleSaveAllChanges} 
+                  <Button
+                    onClick={handleSaveAllChanges}
                     variant="default"
                     disabled={hasRulesInEditMode}
                   >
@@ -381,7 +385,7 @@ const RulesetEditMode = () => {
                 </span>
               </TooltipTrigger>
               <TooltipContent>
-                {hasRulesInEditMode 
+                {hasRulesInEditMode
                   ? "Please save or cancel all rule edits before saving the ruleset"
                   : "Save all changes to the ruleset"}
               </TooltipContent>
