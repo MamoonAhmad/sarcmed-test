@@ -24,10 +24,11 @@ import {
   TableRow,
   TableCell,
 } from "@/components/ui/table";
+import { RootState } from "../types/rules";
 
-const RulesViewMode = () => {
+const RulesViewMode: React.FC = () => {
   const dispatch = useDispatch();
-  const { rulesets, selectedRulesetId } = useSelector((state) => state.rules);
+  const { rulesets, selectedRulesetId } = useSelector((state: RootState) => state.rules);
   const selectedRuleset = rulesets.find((rs) => rs.id === selectedRulesetId);
 
   const handleEditMode = () => {
@@ -38,7 +39,7 @@ const RulesViewMode = () => {
     dispatch(copyRuleset());
   };
 
-  const handleRulesetChange = (value) => {
+  const handleRulesetChange = (value: string) => {
     if (value === "new") {
       dispatch(addNewRuleset());
     } else {
@@ -46,15 +47,19 @@ const RulesViewMode = () => {
     }
   };
 
-  const getDisplayComparator = (comparator) => {
+  const getDisplayComparator = (comparator: string): string => {
     return comparator === "not present" ? "is" : comparator;
   };
 
-  const getDisplayComparedValue = (comparator, comparedValue, unitName) => {
+  const getDisplayComparedValue = (
+    comparator: string,
+    comparedValue: number,
+    unitName: string
+  ): string => {
     if (comparator === "not present") {
       return "Not Present";
     }
-    return unitName ? `${comparedValue} ${unitName}` : comparedValue;
+    return unitName ? `${comparedValue} ${unitName}` : comparedValue.toString();
   };
 
   return (

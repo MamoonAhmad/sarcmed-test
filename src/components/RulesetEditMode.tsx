@@ -38,8 +38,17 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Separator } from "@/components/ui/separator";
+import { RootState, Rule, Ruleset } from "../types/rules";
 
-const RuleEditRow = ({ rule, onUpdate, onSave, onDelete, index }) => {
+interface RuleEditRowProps {
+  rule: Rule;
+  onUpdate: (ruleId: number, updates: Partial<Rule>) => void;
+  onSave: () => void;
+  onDelete: (ruleId: number) => void;
+  index: number;
+}
+
+const RuleEditRow: React.FC<RuleEditRowProps> = ({ rule, onUpdate, onSave, onDelete, index }) => {
   const [errors, setErrors] = useState({
     measurement: "",
     findingName: "",
@@ -47,7 +56,7 @@ const RuleEditRow = ({ rule, onUpdate, onSave, onDelete, index }) => {
     unitName: "",
   });
 
-  const validateRule = () => {
+  const validateRule = (): boolean => {
     const newErrors = {
       measurement: "",
       findingName: "",
@@ -88,20 +97,20 @@ const RuleEditRow = ({ rule, onUpdate, onSave, onDelete, index }) => {
     }
   };
 
-  const handleComparatorChange = (value) => {
-    const updates = {};
+  const handleComparatorChange = (value: string) => {
+    const updates: Partial<Rule> = {};
     if (value === "is") {
       updates.comparator = "not present";
       updates.comparedValue = -1;
       updates.unitName = "";
     } else {
-      updates.comparator = value;
-      updates.comparedValue = "";
+      updates.comparator = value as Rule['comparator'];
+      updates.comparedValue = 0;
     }
     onUpdate(rule.id, updates);
   };
 
-  const getDisplayComparator = (comparator) => {
+  const getDisplayComparator = (comparator: string): string => {
     return comparator === "not present" ? "is" : comparator;
   };
 
@@ -206,7 +215,7 @@ const RuleEditRow = ({ rule, onUpdate, onSave, onDelete, index }) => {
       <TableCell>
         <Select
           value={rule.action}
-          onValueChange={(value) => onUpdate(rule.id, { action: value })}
+          onValueChange={(value) => onUpdate(rule.id, { action: value as Rule['action'] })}
         >
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select action" />
@@ -231,11 +240,11 @@ const RuleEditRow = ({ rule, onUpdate, onSave, onDelete, index }) => {
   );
 };
 
-const RulesetEditMode = () => {
+const RulesetEditMode: React.FC = () => {
   const dispatch = useDispatch();
-  const { rulesets, selectedRulesetId } = useSelector((state) => state.rules);
-  const [localRuleset, setLocalRuleset] = useState(null);
-  const [editingRuleIds, setEditingRuleIds] = useState(new Set());
+  const { rulesets, selectedRulesetId } = useSelector((state: RootState) => state.rules);
+  const [localRuleset, setLocalRuleset] = useState<Ruleset | null>(null);
+  const [editingRuleIds, setEditingRuleIds] = useState<Set<number>>(new Set());
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
@@ -253,7 +262,7 @@ const RulesetEditMode = () => {
 
   const handleAddNewRule = () => {
     if (localRuleset) {
-      const newRule = {
+      const newRule: Rule = {
         id: Date.now(),
         measurement: "",
         comparator: "not present",
@@ -275,9 +284,11 @@ const RulesetEditMode = () => {
   };
 
   const handleConfirmDelete = () => {
-    dispatch(deleteRuleSet(selectedRulesetId));
-    dispatch(toggleEditMode());
-    setShowDeleteDialog(false);
+    if (selectedRulesetId) {
+      dispatch(deleteRuleSet(selectedRulesetId));
+      dispatch(toggleEditMode());
+      setShowDeleteDialog(false);
+    }
   };
 
   const handleCancel = () => {
@@ -289,7 +300,7 @@ const RulesetEditMode = () => {
     setShowCancelDialog(false);
   };
 
-  const handleRuleUpdate = (ruleId, updates) => {
+  const handleRuleUpdate = (ruleId: number, updates: Partial<Rule>) => {
     if (localRuleset) {
       setLocalRuleset({
         ...localRuleset,
@@ -300,7 +311,7 @@ const RulesetEditMode = () => {
     }
   };
 
-  const handleRuleDelete = (ruleId) => {
+  const handleRuleDelete = (ruleId: number) => {
     if (localRuleset) {
       setLocalRuleset({
         ...localRuleset,
@@ -314,7 +325,7 @@ const RulesetEditMode = () => {
     }
   };
 
-  const handleRulesetNameChange = (e) => {
+  const handleRulesetNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (localRuleset) {
       setLocalRuleset({
         ...localRuleset,
@@ -323,11 +334,11 @@ const RulesetEditMode = () => {
     }
   };
 
-  const handleEditRule = (ruleId) => {
+  const handleEditRule = (ruleId: number) => {
     setEditingRuleIds((prev) => new Set([...prev, ruleId]));
   };
 
-  const handleSaveRule = (ruleId) => {
+  const handleSaveRule = (ruleId: number) => {
     setEditingRuleIds((prev) => {
       const newSet = new Set(prev);
       newSet.delete(ruleId);
@@ -340,7 +351,7 @@ const RulesetEditMode = () => {
   };
 
   const handleConfirmSave = () => {
-    if (localRuleset) {
+    if (localRuleset && selectedRulesetId) {
       dispatch(
         updateRuleSet({
           rulesetId: selectedRulesetId,

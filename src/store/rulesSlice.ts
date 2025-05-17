@@ -1,22 +1,32 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { RulesState, Ruleset } from '../types/rules';
 
-const initialState = {
+const initialState: RulesState = {
   rulesets: [],
   selectedRulesetId: null,
   isEditMode: false
 };
 
+interface LoadRuleSetsPayload {
+  rule_sets: Ruleset[];
+}
+
+interface UpdateRuleSetPayload {
+  rulesetId: number;
+  updates: Partial<Ruleset>;
+}
+
 export const rulesSlice = createSlice({
   name: 'rules',
   initialState,
   reducers: {
-    loadRuleSets: (state, action) => {
+    loadRuleSets: (state, action: PayloadAction<LoadRuleSetsPayload>) => {
       state.rulesets = action.payload.rule_sets;
       if (state.rulesets.length > 0) {
         state.selectedRulesetId = state.rulesets[0].id;
       }
     },
-    updateRuleSet: (state, action) => {
+    updateRuleSet: (state, action: PayloadAction<UpdateRuleSetPayload>) => {
       const { rulesetId, updates } = action.payload;
       const rulesetIndex = state.rulesets.findIndex(rs => rs.id === rulesetId);
       if (rulesetIndex !== -1) {
@@ -26,7 +36,7 @@ export const rulesSlice = createSlice({
         };
       }
     },
-    deleteRuleSet: (state, action) => {
+    deleteRuleSet: (state, action: PayloadAction<number>) => {
       const rulesetId = action.payload;
       state.rulesets = state.rulesets.filter(rs => rs.id !== rulesetId);
       if (state.rulesets.length > 0) {
@@ -35,14 +45,14 @@ export const rulesSlice = createSlice({
         state.selectedRulesetId = null;
       }
     },
-    setSelectedRuleset: (state, action) => {
+    setSelectedRuleset: (state, action: PayloadAction<number>) => {
       state.selectedRulesetId = action.payload;
     },
     toggleEditMode: (state) => {
       state.isEditMode = !state.isEditMode;
     },
     addNewRuleset: (state) => {
-      const newRuleset = {
+      const newRuleset: Ruleset = {
         id: Date.now(),
         name: `Rule Set ${state.rulesets.length + 1}`,
         rules: []
@@ -53,7 +63,7 @@ export const rulesSlice = createSlice({
     copyRuleset: (state) => {
       const currentRuleset = state.rulesets.find(rs => rs.id === state.selectedRulesetId);
       if (currentRuleset) {
-        const newRuleset = {
+        const newRuleset: Ruleset = {
           id: Date.now(),
           name: `${currentRuleset.name}_(1)`,
           rules: JSON.parse(JSON.stringify(currentRuleset.rules))
@@ -62,7 +72,6 @@ export const rulesSlice = createSlice({
         state.selectedRulesetId = newRuleset.id;
       }
     },
-    
   }
 });
 
@@ -72,12 +81,8 @@ export const {
   deleteRuleSet,
   setSelectedRuleset,
   toggleEditMode,
-  addNewRule,
-  updateRule,
-  deleteRule,
   addNewRuleset,
   copyRuleset,
-  updateRulesetName
 } = rulesSlice.actions;
 
 export default rulesSlice.reducer; 
