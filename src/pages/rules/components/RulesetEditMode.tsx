@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { X, Trash2, Pencil, Check, Plus } from "lucide-react";
+import { X, Trash2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -26,7 +26,22 @@ import {
 } from "@/components/ui/tooltip";
 import { Separator } from "@/components/ui/separator";
 import { Rule, Ruleset } from "@/types/rules";
-import RuleEditRow from "./RuleEditRow";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import SortableRuleRow from "./SortableRuleRow";
 
 /**
  * Props interface for the RulesetEditMode component
@@ -48,6 +63,13 @@ const RulesetEditMode: React.FC<RulesetEditModeProps> = ({ ruleset, onSave, onCa
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   // Update ruleset name
   const handleRulesetNameChange = (name: string) => {
@@ -110,6 +132,23 @@ const RulesetEditMode: React.FC<RulesetEditModeProps> = ({ ruleset, onSave, onCa
       rules: [...prev.rules, newRule],
     }));
     setEditingRuleIds((prev) => new Set([...prev, newRule.id]));
+  };
+
+  // Handle drag end event
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    
+    if (over && active.id !== over.id) {
+      setLocalRuleset((prev) => {
+        const oldIndex = prev.rules.findIndex((rule) => rule.id === active.id);
+        const newIndex = prev.rules.findIndex((rule) => rule.id === over.id);
+        
+        return {
+          ...prev,
+          rules: arrayMove(prev.rules, oldIndex, newIndex),
+        };
+      });
+    }
   };
 
   // Show save confirmation dialog
@@ -187,6 +226,7 @@ const RulesetEditMode: React.FC<RulesetEditModeProps> = ({ ruleset, onSave, onCa
       <Table>
         <TableHeader>
           <TableRow>
+            <TableHead className="w-[50px]"></TableHead>
             <TableHead className="w-[50px]">#</TableHead>
             <TableHead colSpan={3} className="text-center">
               Measurement Conditions
@@ -200,60 +240,36 @@ const RulesetEditMode: React.FC<RulesetEditModeProps> = ({ ruleset, onSave, onCa
           {localRuleset.rules.length === 0 ? (
             <TableRow>
               <TableCell
-                colSpan={7}
+                colSpan={8}
                 className="text-center text-muted-foreground py-8"
               >
                 No Rules Found For This Ruleset
               </TableCell>
             </TableRow>
           ) : (
-            localRuleset.rules.map((rule, i) =>
-              editingRuleIds.has(rule.id) ? (
-                <RuleEditRow
-                  key={rule.id}
-                  rule={rule}
-                  onUpdate={handleRuleUpdate}
-                  onSave={() => handleSaveRule(rule.id)}
-                  onDelete={handleRuleDelete}
-                  index={i + 1}
-                />
-              ) : (
-                <TableRow key={rule.id}>
-                  <TableCell>{i + 1}</TableCell>
-                  <TableCell className={"text-center"}>
-                    {rule.measurement}
-                  </TableCell>
-                  <TableCell>
-                    {rule.comparator === "not present" ? "is" : rule.comparator}
-                  </TableCell>
-                  <TableCell>
-                    {rule.comparator === "not present"
-                      ? "Not Present"
-                      : `${rule.comparedValue} ${rule.unitName}`}
-                  </TableCell>
-                  <TableCell>{rule.findingName}</TableCell>
-                  <TableCell>{rule.action}</TableCell>
-                  <TableCell>
-                    <div className="flex space-x-2">
-                      <Button
-                        onClick={() => handleEditRule(rule.id)}
-                        variant="ghost"
-                        size="icon"
-                      >
-                        <Pencil className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        onClick={() => handleRuleDelete(rule.id)}
-                        variant="ghost"
-                        size="icon"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              )
-            )
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext
+                items={localRuleset.rules.map((rule) => rule.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                {localRuleset.rules.map((rule, i) => (
+                  <SortableRuleRow
+                    key={rule.id}
+                    rule={rule}
+                    index={i + 1}
+                    isEditing={editingRuleIds.has(rule.id)}
+                    onEdit={handleEditRule}
+                    onDelete={handleRuleDelete}
+                    onUpdate={handleRuleUpdate}
+                    onSave={handleSaveRule}
+                  />
+                ))}
+              </SortableContext>
+            </DndContext>
           )}
         </TableBody>
       </Table>
@@ -333,4 +349,4 @@ const RulesetEditMode: React.FC<RulesetEditModeProps> = ({ ruleset, onSave, onCa
   );
 };
 
-export default RulesetEditMode;
+export default RulesetEditMode; 

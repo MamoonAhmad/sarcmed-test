@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { X, Check } from "lucide-react";
+import { Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { TableCell, TableRow } from "@/components/ui/table";
+import { TableCell } from "@/components/ui/table";
 import { Rule } from "@/types/rules";
 
 /**
@@ -98,9 +98,9 @@ const RuleEditRow: React.FC<RuleEditRowProps> = ({ rule, onUpdate, onSave, onDel
   };
 
   return (
-    <TableRow>
+    <>
       <TableCell>{index}</TableCell>
-      <TableCell className={"text-center"}>
+      <TableCell className="text-center">
         <div className="flex flex-col gap-1">
           <Input
             type="text"
@@ -219,7 +219,7 @@ const RuleEditRow: React.FC<RuleEditRowProps> = ({ rule, onUpdate, onSave, onDel
           </Button>
         </div>
       </TableCell>
-    </TableRow>
+    </>
   );
 };
 
