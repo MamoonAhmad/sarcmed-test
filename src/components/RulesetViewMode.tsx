@@ -19,6 +19,9 @@ import {
 } from "@/components/ui/table";
 import { Ruleset } from "../types/rules";
 
+/**
+ * Props interface for the RulesetViewMode component
+ */
 interface RulesetViewModeProps {
   rulesets: Ruleset[];
   selectedRulesetId: number | null;
@@ -28,6 +31,10 @@ interface RulesetViewModeProps {
   onAddNewRuleset: () => void
 }
 
+/**
+ * Component for viewing rulesets in a read-only format
+ * Displays rules in a table and provides options to edit, copy, or create new rulesets
+ */
 const RulesetViewMode: React.FC<RulesetViewModeProps> = ({
   rulesets,
   selectedRulesetId,
@@ -38,10 +45,12 @@ const RulesetViewMode: React.FC<RulesetViewModeProps> = ({
 }) => {
   const selectedRuleset = rulesets.find((rs) => rs.id === selectedRulesetId);
 
+  // Convert internal comparator value to display format
   const getDisplayComparator = (comparator: string): string => {
     return comparator === "not present" ? "is" : comparator;
   };
 
+  // Format the compared value and unit for display
   const getDisplayComparedValue = (
     comparator: string,
     comparedValue: number,
@@ -53,6 +62,7 @@ const RulesetViewMode: React.FC<RulesetViewModeProps> = ({
     return unitName ? `${comparedValue} ${unitName}` : comparedValue.toString();
   };
 
+  // Handle ruleset selection or creation
   const onChange = (value: string) => {
     if(value === "new") {
       onAddNewRuleset();
@@ -63,6 +73,7 @@ const RulesetViewMode: React.FC<RulesetViewModeProps> = ({
 
   return (
     <div className="container mx-auto p-4">
+      {/* Ruleset selection and action buttons */}
       <div className="flex justify-between items-center mb-4">
         <Select
           value={selectedRulesetId?.toString()}
@@ -84,6 +95,7 @@ const RulesetViewMode: React.FC<RulesetViewModeProps> = ({
           </SelectContent>
         </Select>
 
+        {/* Action buttons for selected ruleset */}
         {selectedRuleset ? (
           <div className="space-x-2">
             <Button onClick={onEditMode} variant="default">
@@ -98,6 +110,7 @@ const RulesetViewMode: React.FC<RulesetViewModeProps> = ({
         ) : null}
       </div>
 
+      {/* Display ruleset content or empty state */}
       {!selectedRuleset ? (
         <div className="flex flex-col items-center justify-center h-[400px] text-center">
           <h3 className="text-lg font-semibold mb-2">No Ruleset Selected</h3>

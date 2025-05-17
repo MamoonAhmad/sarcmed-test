@@ -34,6 +34,9 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Rule, Ruleset } from "../types/rules";
 
+/**
+ * Props interface for the RuleEditRow component
+ */
 interface RuleEditRowProps {
   rule: Rule;
   onUpdate: (ruleId: number, updates: Partial<Rule>) => void;
@@ -42,6 +45,10 @@ interface RuleEditRowProps {
   index: number;
 }
 
+/**
+ * Component for editing individual rules within a ruleset
+ * Handles validation and updates for rule fields
+ */
 const RuleEditRow: React.FC<RuleEditRowProps> = ({ rule, onUpdate, onSave, onDelete, index }) => {
   const [errors, setErrors] = useState({
     measurement: "",
@@ -50,6 +57,7 @@ const RuleEditRow: React.FC<RuleEditRowProps> = ({ rule, onUpdate, onSave, onDel
     unitName: "",
   });
 
+  // Validate rule fields and set error messages
   const validateRule = (): boolean => {
     const newErrors = {
       measurement: "",
@@ -85,12 +93,14 @@ const RuleEditRow: React.FC<RuleEditRowProps> = ({ rule, onUpdate, onSave, onDel
     return isValid;
   };
 
+  // Save rule if validation passes
   const handleSave = () => {
     if (validateRule()) {
       onSave();
     }
   };
 
+  // Handle comparator change and update related fields
   const handleComparatorChange = (value: string) => {
     const updates: Partial<Rule> = {};
     if (value === "is") {
@@ -104,6 +114,7 @@ const RuleEditRow: React.FC<RuleEditRowProps> = ({ rule, onUpdate, onSave, onDel
     onUpdate(rule.id, updates);
   };
 
+  // Convert internal comparator value to display format
   const getDisplayComparator = (comparator: string): string => {
     return comparator === "not present" ? "is" : comparator;
   };
@@ -234,6 +245,9 @@ const RuleEditRow: React.FC<RuleEditRowProps> = ({ rule, onUpdate, onSave, onDel
   );
 };
 
+/**
+ * Props interface for the RulesetEditMode component
+ */
 interface RulesetEditModeProps {
   ruleset: Ruleset;
   onSave: (ruleset: Ruleset) => void;
@@ -241,6 +255,10 @@ interface RulesetEditModeProps {
   onDelete: () => void;
 }
 
+/**
+ * Component for editing a ruleset
+ * Manages the editing state of individual rules and provides UI for modifying ruleset properties
+ */
 const RulesetEditMode: React.FC<RulesetEditModeProps> = ({ ruleset, onSave, onCancel, onDelete }) => {
   const [localRuleset, setLocalRuleset] = useState<Ruleset>(ruleset);
   const [editingRuleIds, setEditingRuleIds] = useState<Set<number>>(new Set());
@@ -248,6 +266,7 @@ const RulesetEditMode: React.FC<RulesetEditModeProps> = ({ ruleset, onSave, onCa
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
 
+  // Update ruleset name
   const handleRulesetNameChange = (name: string) => {
     setLocalRuleset((prev) => ({
       ...prev,
@@ -255,6 +274,7 @@ const RulesetEditMode: React.FC<RulesetEditModeProps> = ({ ruleset, onSave, onCa
     }));
   };
 
+  // Update a rule's properties
   const handleRuleUpdate = (ruleId: number, updates: Partial<Rule>) => {
     setLocalRuleset((prev) => ({
       ...prev,
@@ -264,6 +284,7 @@ const RulesetEditMode: React.FC<RulesetEditModeProps> = ({ ruleset, onSave, onCa
     }));
   };
 
+  // Remove a rule from the ruleset
   const handleRuleDelete = (ruleId: number) => {
     setLocalRuleset((prev) => ({
       ...prev,
@@ -276,23 +297,21 @@ const RulesetEditMode: React.FC<RulesetEditModeProps> = ({ ruleset, onSave, onCa
     });
   };
 
+  // Put a rule in edit mode
   const handleEditRule = (ruleId: number) => {
     setEditingRuleIds((prev) => new Set([...prev, ruleId]));
   };
 
+  // Save a rule and remove it from edit mode
   const handleSaveRule = (ruleId: number) => {
     setEditingRuleIds((prev) => {
       const newSet = new Set(prev);
       newSet.delete(ruleId);
       return newSet;
     });
-    setEditingRuleIds((prev) => {
-      const newSet = new Set(prev);
-      newSet.delete(ruleId);
-      return newSet;
-    });
   };
 
+  // Add a new empty rule to the ruleset
   const handleAddNewRule = () => {
     const newRule: Rule = {
       id: Date.now(),
@@ -310,22 +329,27 @@ const RulesetEditMode: React.FC<RulesetEditModeProps> = ({ ruleset, onSave, onCa
     setEditingRuleIds((prev) => new Set([...prev, newRule.id]));
   };
 
+  // Show save confirmation dialog
   const handleSaveClick = () => {
     setShowSaveDialog(true);
   };
 
+  // Show delete confirmation dialog
   const handleDeleteClick = () => {
     setShowDeleteDialog(true);
   };
 
+  // Show cancel confirmation dialog
   const handleCancelClick = () => {
     setShowCancelDialog(true);
   };
 
+  // Check if any rules are currently being edited
   const hasRulesInEditMode = editingRuleIds.size > 0;
 
   return (
     <div className="container mx-auto p-4">
+      {/* Ruleset header with name input and action buttons */}
       <div className="flex justify-between items-center mb-4">
         <div className="w-full">
           <Input
@@ -376,6 +400,7 @@ const RulesetEditMode: React.FC<RulesetEditModeProps> = ({ ruleset, onSave, onCa
         </div>
       </div>
 
+      {/* Rules table */}
       <Table>
         <TableHeader>
           <TableRow>
@@ -450,6 +475,7 @@ const RulesetEditMode: React.FC<RulesetEditModeProps> = ({ ruleset, onSave, onCa
         </TableBody>
       </Table>
 
+      {/* Confirmation dialogs */}
       <Dialog open={showSaveDialog} onOpenChange={setShowSaveDialog}>
         <DialogContent>
           <DialogHeader>

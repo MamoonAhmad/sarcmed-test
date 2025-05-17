@@ -11,32 +11,38 @@ import RulesetEditMode from "./RulesetEditMode";
 import { mockData } from "../data/mockRules";
 import { RootState, Ruleset } from "../types/rules";
 
+/**
+ * Main Rules component that manages the rules interface
+ * Handles switching between view and edit modes, and manages ruleset selection
+ */
 const Rules: React.FC = () => {
   const dispatch = useDispatch();
   const { rulesets } = useSelector((state: RootState) => state.rules);
   const [localRuleset, setLocalRuleset] = useState<Ruleset | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [selectedRulesetId, setSelectedRulesetId] = useState<number | null>(
-    null
-  );
+  const [selectedRulesetId, setSelectedRulesetId] = useState<number | null>(null);
 
+  // Load initial rulesets from mock data
   useEffect(() => {
     dispatch(loadRuleSets(mockData));
   }, [dispatch]);
 
+  // Update local ruleset when selection or edit mode changes
   useEffect(() => {
     if (selectedRulesetId) {
       const selectedRuleset = rulesets.find(
         (rs) => rs.id === selectedRulesetId
       );
       if (selectedRuleset) {
+        // Create a deep copy when in edit mode to prevent direct state mutations
         if (isEditMode) {
           setLocalRuleset(JSON.parse(JSON.stringify(selectedRuleset)));
         } else {
           setLocalRuleset(selectedRuleset);
         }
       } else {
-        setSelectedRulesetId(null);
+        // this will trigger setInitialRulesetId in next render
+        setInitialRulesetId();
       }
     } else if (rulesets.length) {
       setInitialRulesetId();
@@ -45,16 +51,19 @@ const Rules: React.FC = () => {
     }
   }, [rulesets, selectedRulesetId, isEditMode]);
 
+  // Set initial ruleset ID when rulesets are loaded
   const setInitialRulesetId = () => {
     if (rulesets.length) {
       setSelectedRulesetId(rulesets[0]?.id);
     }
   };
 
+  // Handle ruleset selection change
   const handleSelectedRulesetChange = (value: string) => {
     setSelectedRulesetId(parseInt(value));
   };
 
+  // Create a new empty ruleset
   const handleAddNewRuleset = () => {
     const newRuleset: Ruleset = {
       id: Date.now(),
@@ -65,10 +74,12 @@ const Rules: React.FC = () => {
     setSelectedRulesetId(newRuleset.id);
   };
 
+  // Toggle between view and edit modes
   const handleEditMode = () => {
     setIsEditMode(!isEditMode);
   };
 
+  // Create a copy of the current ruleset
   const handleCopyRuleset = () => {
     if (localRuleset) {
       const newRuleset: Ruleset = {
@@ -85,6 +96,7 @@ const Rules: React.FC = () => {
     }
   };
 
+  // Save changes to the current ruleset
   const handleSave = (ruleset: Ruleset) => {
     if (localRuleset && selectedRulesetId) {
       dispatch(
@@ -98,10 +110,12 @@ const Rules: React.FC = () => {
     }
   };
 
+  // Cancel editing and return to view mode
   const handleCancel = () => {
     handleEditMode();
   };
 
+  // Delete the current ruleset
   const handleDelete = () => {
     if (selectedRulesetId) {
       dispatch(deleteRuleSet(selectedRulesetId));
@@ -109,6 +123,7 @@ const Rules: React.FC = () => {
     }
   };
 
+  // Render either edit mode or view mode based on state
   return isEditMode && localRuleset ? (
     <RulesetEditMode
       ruleset={localRuleset}
