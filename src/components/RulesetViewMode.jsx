@@ -110,9 +110,9 @@ const RulesViewMode = () => {
               </TableCell>
             </TableRow>
           ) : (
-            selectedRuleset?.rules.map((rule) => (
+            selectedRuleset?.rules.map((rule, i) => (
               <TableRow key={rule.id}>
-                <TableCell>{rule.id}</TableCell>
+                <TableCell>{i+1}</TableCell>
                 <TableCell className={"text-center"}>{rule.measurement}</TableCell>
                 <TableCell>{getDisplayComparator(rule.comparator)}</TableCell>
                 <TableCell>
