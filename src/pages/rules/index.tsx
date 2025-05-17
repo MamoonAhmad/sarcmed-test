@@ -5,11 +5,11 @@ import {
   updateRuleSet,
   deleteRuleSet,
   addNewRuleset,
-} from "../store/rulesSlice";
-import RulesViewMode from "./RulesetViewMode";
-import RulesetEditMode from "./RulesetEditMode";
-import { mockData } from "../data/mockRules";
-import { RootState, Ruleset } from "../types/rules";
+} from "@/store/rulesSlice";
+import RulesViewMode from "./components/RulesetViewMode";
+import RulesetEditMode from "./components/RulesetEditMode";
+import { mockData } from "@/data/mockRules";
+import { RootState, Ruleset } from "@/types/rules";
 
 /**
  * Main Rules component that manages the rules interface

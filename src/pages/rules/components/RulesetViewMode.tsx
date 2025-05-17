@@ -17,7 +17,7 @@ import {
   TableRow,
   TableCell,
 } from "@/components/ui/table";
-import { Ruleset } from "../types/rules";
+import { Ruleset } from "@/types/rules";
 
 /**
  * Props interface for the RulesetViewMode component
