@@ -1,5 +1,5 @@
 import React from "react";
-import { Pencil, Copy } from "lucide-react";
+import { Pencil, Copy, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -28,7 +28,7 @@ interface RulesetViewModeProps {
   onSelectedRulesetChange: (value: string) => void;
   onEditMode: () => void;
   onCopyRuleset: () => void;
-  onAddNewRuleset: () => void
+  onAddNewRuleset: () => void;
 }
 
 /**
@@ -41,7 +41,7 @@ const RulesetViewMode: React.FC<RulesetViewModeProps> = ({
   onSelectedRulesetChange,
   onEditMode,
   onCopyRuleset,
-  onAddNewRuleset
+  onAddNewRuleset,
 }) => {
   const selectedRuleset = rulesets.find((rs) => rs.id === selectedRulesetId);
 
@@ -64,21 +64,18 @@ const RulesetViewMode: React.FC<RulesetViewModeProps> = ({
 
   // Handle ruleset selection or creation
   const onChange = (value: string) => {
-    if(value === "new") {
+    if (value === "new") {
       onAddNewRuleset();
     } else {
       onSelectedRulesetChange(value);
     }
-  }
+  };
 
   return (
     <div className="container mx-auto p-4">
       {/* Ruleset selection and action buttons */}
       <div className="flex justify-between items-center mb-4">
-        <Select
-          value={selectedRulesetId?.toString()}
-          onValueChange={onChange}
-        >
+        <Select value={selectedRulesetId?.toString()} onValueChange={onChange}>
           <SelectTrigger className="w-[280px]">
             <SelectValue placeholder="Select a ruleset" />
           </SelectTrigger>
@@ -90,7 +87,8 @@ const RulesetViewMode: React.FC<RulesetViewModeProps> = ({
             ))}
             <SelectSeparator />
             <SelectItem value="new" className="text-primary">
-              New Ruleset
+              <Plus className="mr-1" />
+              Add New Ruleset
             </SelectItem>
           </SelectContent>
         </Select>
@@ -157,7 +155,9 @@ const RulesetViewMode: React.FC<RulesetViewModeProps> = ({
                     )}
                   </TableCell>
                   <TableCell>{rule.findingName}</TableCell>
-                  <TableCell className="font-semibold">Select "{rule.action}"</TableCell>
+                  <TableCell className="font-semibold">
+                    Select "{rule.action}"
+                  </TableCell>
                 </TableRow>
               ))
             )}
